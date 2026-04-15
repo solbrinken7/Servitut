@@ -4,7 +4,7 @@
 // søgefeltet. Click på en button er det mest pålidelige event på iOS Safari.
 
 const DAWA_URL = "https://api.dataforsyningen.dk/adresser/autocomplete";
-const VERSION = "v3";
+const VERSION = "v4";
 
 const els = {
   form: document.getElementById("search-form"),
@@ -95,14 +95,24 @@ async function pickSuggestion(item) {
   runSearch();
 }
 
+// Sæt href + synlig URL på et link-kort. Returnerer false hvis URL mangler.
+function setCardLink(cardEl, url) {
+  if (!url) return false;
+  cardEl.href = url;
+  cardEl.setAttribute("href", url);
+  // Vis URL'en under beskrivelsen (god debug + long-press-to-copy på mobil).
+  const urlEl = cardEl.querySelector("[data-url]");
+  if (urlEl) urlEl.textContent = url;
+  return true;
+}
+
 function showResult(addr) {
   console.log("[servitut] showResult", addr);
   els.chosenText.textContent = formatAddress(addr);
 
-  const dingeo = buildDingeoUrl(addr);
-  els.linkDingeo.href = dingeo || "https://www.dingeo.dk/";
-  els.linkTingbog.href = buildTingbogUrl();
-  els.linkBoligejer.href = buildBoligejerUrl();
+  setCardLink(els.linkDingeo, buildDingeoUrl(addr) || "https://www.dingeo.dk/");
+  setCardLink(els.linkTingbog, buildTingbogUrl());
+  setCardLink(els.linkBoligejer, buildBoligejerUrl());
 
   const parts = [];
   if (addr.kommunekode) parts.push(`Kommunekode ${addr.kommunekode}`);
@@ -116,6 +126,23 @@ function showResult(addr) {
   // Scroll resultat-sektionen ind i view på mobil.
   els.results.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+// Fallback-handler: visse iOS-versioner reagerer ikke på <a>-tap hvis href
+// sættes via JS efter load. Vi gør det eksplicit med window.open ved click.
+function attachLinkFallback(cardEl) {
+  cardEl.addEventListener("click", (e) => {
+    const url = cardEl.getAttribute("href");
+    if (!url || url === "#") return;
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    const win = window.open(url, "_blank", "noopener,noreferrer");
+    // Hvis popup-blockeren stopper os, navigér da i samme fane.
+    if (!win) {
+      window.location.href = url;
+    }
+  });
+}
+[els.linkDingeo, els.linkTingbog, els.linkBoligejer].forEach(attachLinkFallback);
 
 // ---- DAWA call ----
 

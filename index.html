@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b5cff">
   <title>Servitut-opslag · Find servitutter på dansk adresse</title>
   <meta name="description" content="Slå servitutter op på danske ejendomme via adresse - deep-links til DinGeo, Tingbogen og Boligejer.">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='54'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
 </head>
 <body>
@@ -43,26 +43,29 @@
         <strong id="chosen-text"></strong>
       </div>
 
-      <a id="link-dingeo" class="card card-primary" target="_blank" rel="noopener">
+      <a id="link-dingeo" class="card card-primary" href="https://www.dingeo.dk/" target="_blank" rel="noopener">
         <div class="card-body">
           <div class="card-title">Åbn på DinGeo</div>
           <div class="card-desc">Gratis · ingen login · servitutter vises inline</div>
+          <div class="card-url" data-url></div>
         </div>
         <span class="card-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a id="link-tingbog" class="card" target="_blank" rel="noopener">
+      <a id="link-tingbog" class="card" href="https://www.tinglysning.dk/tinglysning/landingpage/landingpage.xhtml" target="_blank" rel="noopener">
         <div class="card-body">
           <div class="card-title">Åbn i Tingbogen</div>
           <div class="card-desc">Officiel kilde · kræver MitID · søg manuelt på Fast ejendom</div>
+          <div class="card-url" data-url></div>
         </div>
         <span class="card-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a id="link-boligejer" class="card" target="_blank" rel="noopener">
+      <a id="link-boligejer" class="card" href="https://boligejer.dk/ejendomsdata" target="_blank" rel="noopener">
         <div class="card-body">
           <div class="card-title">Åbn på Boligejer (Min Ejendom)</div>
           <div class="card-desc">Officielle ejendomsdata · kræver MitID</div>
+          <div class="card-url" data-url></div>
         </div>
         <span class="card-arrow" aria-hidden="true">→</span>
       </a>
@@ -80,10 +83,10 @@
         <dt>Boligejer.dk</dt>
         <dd>Myndighedernes portal med ejendomsdata. Kræver MitID.</dd>
       </dl>
-      <p class="disclaimer">Adresseforslag: <a href="https://dawadocs.dataforsyningen.dk" target="_blank" rel="noopener">DAWA</a>. Version <span id="version">v3</span>.</p>
+      <p class="disclaimer">Adresseforslag: <a href="https://dawadocs.dataforsyningen.dk" target="_blank" rel="noopener">DAWA</a>. Version <span id="version">v4</span>.</p>
     </section>
   </main>
 
-  <script src="app.js?v=3" defer></script>
+  <script src="app.js?v=4" defer></script>
 </body>
 </html>
