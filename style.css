@@ -132,6 +132,13 @@ header h1 {
   background: var(--hover);
 }
 
+.suggestions li.error {
+  color: var(--muted);
+  font-style: italic;
+  cursor: default;
+}
+.suggestions li.error:hover { background: transparent; }
+
 .results {
   margin-top: 1.5rem;
   display: flex;

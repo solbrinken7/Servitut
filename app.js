@@ -83,11 +83,18 @@ function renderSuggestions(list) {
     li.textContent = item.tekst;
     li.setAttribute("role", "option");
     li.dataset.index = String(i);
-    li.addEventListener("mousedown", (e) => {
-      // mousedown i stedet for click - undgå at blur lukker listen før selection.
+    // pointerdown virker på både mus og touch og fyrer før blur lukker listen.
+    // Fallback til mousedown for ældre browsere uden PointerEvent.
+    const onPick = (e) => {
       e.preventDefault();
       selectSuggestion(i);
-    });
+    };
+    if ("onpointerdown" in li) {
+      li.addEventListener("pointerdown", onPick);
+    } else {
+      li.addEventListener("mousedown", onPick);
+      li.addEventListener("touchstart", onPick, { passive: false });
+    }
     els.suggestions.appendChild(li);
   });
   els.suggestions.hidden = false;
@@ -143,6 +150,17 @@ function showResult(addr) {
   els.results.hidden = false;
 }
 
+function showError(msg) {
+  els.suggestions.innerHTML = "";
+  const li = document.createElement("li");
+  li.textContent = msg;
+  li.className = "error";
+  li.setAttribute("role", "alert");
+  els.suggestions.appendChild(li);
+  els.suggestions.hidden = false;
+  activeSuggestions = [];
+}
+
 const triggerAutocomplete = debounce(async () => {
   const q = els.input.value.trim();
   els.clear.hidden = q.length === 0;
@@ -151,14 +169,18 @@ const triggerAutocomplete = debounce(async () => {
     return;
   }
   try {
-    const url = `${DAWA_AUTOCOMPLETE}?q=${encodeURIComponent(q)}&per_side=8&fuzzy=`;
+    const url = `${DAWA_AUTOCOMPLETE}?q=${encodeURIComponent(q)}&per_side=8&fuzzy`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`DAWA ${res.status}`);
+    if (!res.ok) throw new Error(`DAWA svarede ${res.status}`);
     const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      showError(`Ingen forslag for "${q}"`);
+      return;
+    }
     renderSuggestions(data);
   } catch (err) {
     console.error("Autocomplete-fejl:", err);
-    renderSuggestions([]);
+    showError(`Kunne ikke hente forslag: ${err.message}`);
   }
 }, 180);
 
@@ -184,8 +206,9 @@ els.input.addEventListener("keydown", (e) => {
 });
 
 els.input.addEventListener("blur", () => {
-  // Lille delay så mousedown på suggestion kan nå at fire.
-  setTimeout(() => renderSuggestions([]), 120);
+  // Længere delay på mobil så pointerdown/touchstart på suggestion når at fire
+  // før listen lukkes.
+  setTimeout(() => renderSuggestions([]), 250);
 });
 
 els.clear.addEventListener("click", () => {
