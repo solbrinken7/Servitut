@@ -14,6 +14,7 @@ class StubEl {
     this.children = [];
     this.listeners = {};
     this.dataset = {};
+    this._attrs = {};
     this.classList = {
       _set: new Set(),
       add: (c) => this.classList._set.add(c),
@@ -37,15 +38,27 @@ class StubEl {
   get value() { return this._value; }
   set value(v) { this._value = v; }
   get href() { return this._href; }
-  set href(v) { this._href = v; }
-  setAttribute(k, v) { this[k] = v; }
+  set href(v) { this._href = v; this._attrs.href = v; }
+  setAttribute(k, v) { this._attrs[k] = v; if (k === "href") this._href = v; this[k] = v; }
+  getAttribute(k) { return this._attrs[k] ?? null; }
   appendChild(c) { this.children.push(c); c.parentNode = this; return c; }
+  querySelector(sel) {
+    if (sel === "[data-url]") return this._urlEl || null;
+    return null;
+  }
   addEventListener(type, fn) {
     (this.listeners[type] ||= []).push(fn);
   }
   dispatchEvent(type, evt = {}) {
+    let prevented = false;
     const handlers = this.listeners[type] || [];
-    handlers.forEach(h => h({ preventDefault: () => {}, ...evt }));
+    const eventObj = {
+      preventDefault: () => { prevented = true; },
+      get defaultPrevented() { return prevented; },
+      ...evt,
+    };
+    handlers.forEach(h => h(eventObj));
+    return !prevented;
   }
   scrollIntoView() {}
   focus() {}
@@ -62,11 +75,28 @@ function makeEl(id) {
  "chosen-text", "link-dingeo", "link-tingbog", "link-boligejer", "meta"
 ].forEach(id => makeEl(id));
 
+// Tilføj synlig card-url sub-element til hvert link-kort.
+["link-dingeo", "link-tingbog", "link-boligejer"].forEach(id => {
+  const urlEl = new StubEl("", "div");
+  createdEls[id]._urlEl = urlEl;
+  createdEls[id].children.push(urlEl);
+});
+
 globalThis.document = {
   getElementById: (id) => createdEls[id],
   createElement: (tag) => new StubEl("", tag),
 };
-globalThis.window = { __TEST__: null, ontouchstart: undefined };
+
+let openCalls = [];
+globalThis.window = {
+  __TEST__: null,
+  ontouchstart: undefined,
+  open: (url, target, features) => {
+    openCalls.push({ url, target, features });
+    return {}; // pretend popup succeeded
+  },
+  location: { href: "" },
+};
 globalThis.console = console;
 
 // Mock fetch med en realistisk DAWA-response for "Rådhuspladsen 1"
@@ -126,7 +156,7 @@ function check(desc, cond, extra = "") {
 // ---------- Pure-funktions-tests ----------
 console.log("\n[1] slugify");
 const { slugify, buildDingeoUrl, formatAddress, VERSION } = window.__TEST__;
-check("VERSION er v3", VERSION === "v3");
+check("VERSION er v4", VERSION === "v4");
 check("Rådhuspladsen beholder å", slugify("Rådhuspladsen") === "rådhuspladsen");
 check("Vejlands Allé beholder é", slugify("Vejlands Allé") === "vejlands-allé");
 check("København V", slugify("København V") === "københavn-v");
@@ -202,6 +232,32 @@ check(
   "Boligejer-link peger på boligejer.dk",
   createdEls["link-boligejer"]._href === "https://boligejer.dk/ejendomsdata"
 );
+
+check(
+  "DinGeo-kort viser URL under beskrivelsen",
+  createdEls["link-dingeo"]._urlEl._textContent === "https://www.dingeo.dk/adresse/1550-københavn-v/rådhuspladsen-1/"
+);
+
+// 3) Bruger tapper på DinGeo-kortet → window.open kaldes (bulletproof fallback)
+console.log("\n[5] Link-kort click-fallback");
+openCalls.length = 0;
+createdEls["link-dingeo"].dispatchEvent("click", {
+  ctrlKey: false, metaKey: false, shiftKey: false,
+});
+check("window.open blev kaldt", openCalls.length === 1);
+check(
+  "window.open fik DinGeo URL",
+  openCalls[0]?.url === "https://www.dingeo.dk/adresse/1550-københavn-v/rådhuspladsen-1/"
+);
+check("window.open åbnede i _blank", openCalls[0]?.target === "_blank");
+check("window.open bruger noopener,noreferrer",
+  openCalls[0]?.features === "noopener,noreferrer");
+
+// Click på Tingbog-kort åbner tinglysning.dk
+openCalls.length = 0;
+createdEls["link-tingbog"].dispatchEvent("click", {});
+check("Tingbog-click åbner tinglysning.dk",
+  openCalls[0]?.url?.startsWith("https://www.tinglysning.dk/"));
 
 // ---------- Summary ----------
 console.log(`\n${pass} passed, ${fail} failed`);

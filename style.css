@@ -197,6 +197,15 @@ header h1 {
 
 .card-title { font-weight: 600; font-size: 1.02rem; }
 .card-desc { color: var(--muted); font-size: 0.88rem; margin-top: 0.15rem; }
+.card-url {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  word-break: break-all;
+  opacity: 0.75;
+}
+.card-primary .card-url { color: color-mix(in srgb, var(--accent-fg) 70%, transparent); }
+.card-url:empty { display: none; }
 .card-arrow { font-size: 1.3rem; opacity: 0.7; flex-shrink: 0; }
 
 .meta {
