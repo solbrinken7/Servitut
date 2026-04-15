@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b5cff">
+  <title>Servitut-opslag · Find servitutter på dansk adresse</title>
+  <meta name="description" content="Slå servitutter op på danske ejendomme via adresse - deep-links til DinGeo, Tingbogen og Boligejer.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='54'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Servitut-opslag</h1>
+      <p class="lede">Indtast en dansk adresse og hop direkte til servitutterne.</p>
+    </header>
+
+    <section class="search">
+      <label for="address" class="visually-hidden">Adresse</label>
+      <div class="input-wrap">
+        <input
+          id="address"
+          type="search"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="search"
+          placeholder="fx Rådhuspladsen 1, 1550 København V"
+          aria-autocomplete="list"
+          aria-controls="suggestions"
+          aria-expanded="false"
+        >
+        <button id="clear" type="button" class="clear" aria-label="Ryd søgning" hidden>&times;</button>
+      </div>
+      <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+    </section>
+
+    <section id="results" class="results" hidden aria-live="polite">
+      <div class="chosen">
+        <span class="chosen-label">Valgt adresse</span>
+        <strong id="chosen-text"></strong>
+      </div>
+
+      <a id="link-dingeo" class="card card-primary" target="_blank" rel="noopener">
+        <div class="card-body">
+          <div class="card-title">Åbn på DinGeo</div>
+          <div class="card-desc">Gratis · ingen login · viser servitutter direkte på adressen</div>
+        </div>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a id="link-tingbog" class="card" target="_blank" rel="noopener">
+        <div class="card-body">
+          <div class="card-title">Åbn i Tingbogen</div>
+          <div class="card-desc">Officiel kilde · kræver MitID · vælg "Fast ejendom" og søg på adressen</div>
+        </div>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a id="link-boligejer" class="card" target="_blank" rel="noopener">
+        <div class="card-body">
+          <div class="card-title">Åbn på Boligejer (Min Ejendom)</div>
+          <div class="card-desc">Officielle ejendomsdata · kræver MitID</div>
+        </div>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <div class="meta" id="meta"></div>
+    </section>
+
+    <section class="about">
+      <h2>Om kilderne</h2>
+      <dl>
+        <dt>DinGeo</dt>
+        <dd>Samler offentlige geo- og ejendomsdata - viser servitutter pr. adresse uden login. Hurtigste vej til et overblik.</dd>
+        <dt>Tingbogen</dt>
+        <dd>Den officielle tinglysningsdatabase. Indeholder de fulde servitut-dokumenter, men kræver MitID-login og understøtter desværre ikke deep-link pr. adresse.</dd>
+        <dt>Boligejer.dk</dt>
+        <dd>Myndighedernes borgerportal med ejendomsdata fra BBR, Matriklen m.fl. Kræver MitID.</dd>
+      </dl>
+      <p class="disclaimer">Adresseforslag leveres af <a href="https://dawadocs.dataforsyningen.dk" target="_blank" rel="noopener">DAWA</a> (Dataforsyningen). Denne side er et simpelt launcher-værktøj og gemmer ingen data.</p>
+    </section>
+  </main>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
