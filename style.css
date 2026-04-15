@@ -7,6 +7,7 @@
   --accent: #0b5cff;
   --accent-fg: #ffffff;
   --hover: #f1f5fa;
+  --error: #b91c1c;
   --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.06);
 }
 
@@ -20,6 +21,7 @@
     --accent: #4d8bff;
     --accent-fg: #0b1020;
     --hover: #1b2338;
+    --error: #fca5a5;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.4);
   }
 }
@@ -65,16 +67,17 @@ header h1 {
   border: 0;
 }
 
-.search { position: relative; }
-
-.input-wrap {
-  position: relative;
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
 }
 
 #address {
-  width: 100%;
-  font-size: 1.05rem; /* >= 16px for at undgå iOS auto-zoom */
-  padding: 0.95rem 2.5rem 0.95rem 1rem;
+  flex: 1;
+  min-width: 0;
+  font-size: 1.05rem;
+  padding: 0.95rem 1rem;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
@@ -89,58 +92,58 @@ header h1 {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent), var(--shadow);
 }
 
-.clear {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  font-size: 1.6rem;
-  line-height: 1;
-  color: var(--muted);
+#search-btn {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0 1.3rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-radius: 14px;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
+  box-shadow: var(--shadow);
+  transition: filter 0.1s;
+  touch-action: manipulation;
 }
+#search-btn:hover { filter: brightness(0.95); }
+#search-btn:active { transform: scale(0.98); }
 
-.clear:hover { background: var(--hover); color: var(--text); }
+.status {
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+.status[data-kind="error"] { color: var(--error); }
 
 .suggestions {
-  list-style: none;
-  padding: 0.35rem;
-  margin: 0.4rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.suggestion {
+  display: block;
+  width: 100%;
+  text-align: left;
   background: var(--surface);
+  color: var(--text);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: var(--shadow);
-  max-height: 60vh;
-  overflow-y: auto;
-  position: relative;
-  z-index: 10;
-}
-
-.suggestions li {
-  padding: 0.7rem 0.8rem;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 0.9rem 1rem;
   font-size: 0.98rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  touch-action: manipulation;
+  min-height: 54px;
+  transition: border-color 0.1s, background 0.1s;
 }
-
-.suggestions li:hover,
-.suggestions li.active {
-  background: var(--hover);
-}
-
-.suggestions li.error {
-  color: var(--muted);
-  font-style: italic;
-  cursor: default;
-}
-.suggestions li.error:hover { background: transparent; }
+.suggestion:hover { border-color: var(--accent); background: var(--hover); }
+.suggestion:active { transform: scale(0.995); }
 
 .results {
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
@@ -178,9 +181,9 @@ header h1 {
   color: var(--text);
   box-shadow: var(--shadow);
   min-height: 64px;
+  touch-action: manipulation;
   transition: transform 0.08s ease, border-color 0.15s, background 0.15s;
 }
-
 .card:hover { border-color: var(--accent); }
 .card:active { transform: scale(0.99); }
 
@@ -192,22 +195,9 @@ header h1 {
 .card-primary .card-desc { color: color-mix(in srgb, var(--accent-fg) 80%, transparent); }
 .card-primary:hover { filter: brightness(0.95); }
 
-.card-title {
-  font-weight: 600;
-  font-size: 1.02rem;
-}
-
-.card-desc {
-  color: var(--muted);
-  font-size: 0.88rem;
-  margin-top: 0.15rem;
-}
-
-.card-arrow {
-  font-size: 1.3rem;
-  opacity: 0.7;
-  flex-shrink: 0;
-}
+.card-title { font-weight: 600; font-size: 1.02rem; }
+.card-desc { color: var(--muted); font-size: 0.88rem; margin-top: 0.15rem; }
+.card-arrow { font-size: 1.3rem; opacity: 0.7; flex-shrink: 0; }
 
 .meta {
   color: var(--muted);
@@ -223,19 +213,10 @@ header h1 {
   font-size: 0.92rem;
 }
 
-.about h2 {
-  font-size: 1rem;
-  color: var(--text);
-  margin: 0 0 0.6rem;
-}
-
+.about h2 { font-size: 1rem; color: var(--text); margin: 0 0 0.6rem; }
 .about dl { margin: 0; }
 .about dt { font-weight: 600; color: var(--text); margin-top: 0.8rem; }
 .about dd { margin: 0.15rem 0 0; }
-
 .about a { color: var(--accent); }
 
-.disclaimer {
-  margin-top: 1.25rem;
-  font-size: 0.82rem;
-}
+.disclaimer { margin-top: 1.25rem; font-size: 0.82rem; }
